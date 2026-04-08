@@ -3,7 +3,7 @@ import { Client } from '@stomp/stompjs';
 import axios from 'axios';
 import api from '../api/axios';
 import { useAuth } from '../AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { createLoginPath } from '../authNavigation';
 
 interface ChatSender {
@@ -357,6 +357,17 @@ const Dashboard: React.FC = () => {
           >
             Logout
           </button>
+        </div>
+
+        {/* Games section */}
+        <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Spiele</h2>
+          <Link
+            to="/schiffeversenken"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition duration-200"
+          >
+            🚢 Schiffe Versenken spielen
+          </Link>
         </div>
 
         {/* This section displays the user's current roles/authorities. */}

@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import SchiffeversenkenGame from './components/schiffeversenken/SchiffeversenkenGame';
 import { setAuthFailureHandler } from './api/axios';
 import { createLoginPath } from './authNavigation';
 
@@ -85,6 +86,16 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Schiffe Versenken game — requires login */}
+        <Route
+          path="/schiffeversenken"
+          element={
+            <ProtectedRoute>
+              <SchiffeversenkenGame />
             </ProtectedRoute>
           }
         />
