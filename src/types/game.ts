@@ -79,6 +79,54 @@ export interface FireCallbackPayload {
   winner: Winner | null;
 }
 
+// ── Multiplayer ──────────────────────────────────────────────────────────────
+
+export interface CreateLobbyResponse {
+  gameId: string;
+  roomCode: string;
+}
+
+export interface WsPlayerJoined {
+  type: 'PLAYER_JOINED';
+  playerTwoEmail: string;
+  gameId: string;
+}
+
+export interface WsBothReady {
+  type: 'BOTH_READY';
+  firstTurnEmail: string;
+  gameId: string;
+}
+
+export interface WsShotFired {
+  type: 'SHOT_FIRED';
+  firingPlayerEmail: string;
+  firingRole: 'PLAYER_ONE' | 'PLAYER_TWO';
+  shot: ShotResult;
+  nextTurnEmail: string;
+  nextTurnRole: 'PLAYER_ONE' | 'PLAYER_TWO';
+  winner: string | null;
+  gameOver: boolean;
+}
+
+export interface WsGameOver {
+  type: 'GAME_OVER';
+  winnerEmail: string;
+  winnerRole: 'PLAYER_ONE' | 'PLAYER_TWO';
+}
+
+export interface WsOpponentLeft {
+  type: 'OPPONENT_LEFT';
+  message: string;
+}
+
+export type GameWsEvent =
+  | WsPlayerJoined
+  | WsBothReady
+  | WsShotFired
+  | WsGameOver
+  | WsOpponentLeft;
+
 export const FULL_FLEET: DockShip[] = [
   { id: 'SCHLACHTSCHIFF-0', shipType: 'SCHLACHTSCHIFF', size: 4, displayName: 'Schlachtschiff' },
   { id: 'KREUZER-0', shipType: 'KREUZER', size: 3, displayName: 'Kreuzer' },

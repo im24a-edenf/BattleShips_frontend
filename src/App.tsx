@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import SchiffeversenkenGame from './components/schiffeversenken/SchiffeversenkenGame';
+import MultiplayerGame from './components/multiplayer/MultiplayerGame';
 import { setAuthFailureHandler } from './api/axios';
 import { createLoginPath } from './authNavigation';
 
@@ -96,6 +97,16 @@ function App() {
           element={
             <ProtectedRoute>
               <SchiffeversenkenGame />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Multiplayer — requires login */}
+        <Route
+          path="/multiplayer"
+          element={
+            <ProtectedRoute>
+              <MultiplayerGame />
             </ProtectedRoute>
           }
         />

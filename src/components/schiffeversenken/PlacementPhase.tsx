@@ -12,9 +12,10 @@ interface PlacementPhaseProps {
   gameId: string;
   onShipsPlaced: () => void;
   onError: (error: string | null) => void;
+  placeFn?: (gameId: string, placements: PlacementRequest[]) => Promise<{ success: boolean; errors?: string[] }>;
 }
 
-const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, onError }) => {
+const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, onError, placeFn }) => {
   const [dockShips, setDockShips] = useState<DockShip[]>(FULL_FLEET);
   const [placedShips, setPlacedShips] = useState<PlacedShip[]>([]);
   const [isHorizontal, setIsHorizontal] = useState(true);
@@ -103,7 +104,7 @@ const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, 
     }));
 
     try {
-      const result = await placeShips(gameId, placements);
+      const result = await (placeFn ?? placeShips)(gameId, placements);
       if (result.success) {
         onShipsPlaced();
       } else {

@@ -362,12 +362,20 @@ const Dashboard: React.FC = () => {
         {/* Games section */}
         <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
           <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Spiele</h2>
-          <Link
-            to="/schiffeversenken"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition duration-200"
-          >
-            🚢 Schiffe Versenken spielen
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/schiffeversenken"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition duration-200"
+            >
+              🚢 Schiffe Versenken (Solo)
+            </Link>
+            <Link
+              to="/multiplayer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-lg shadow-sm transition duration-200"
+            >
+              ⚔ Multiplayer
+            </Link>
+          </div>
         </div>
 
         {/* This section displays the user's current roles/authorities. */}
