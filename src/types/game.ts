@@ -31,7 +31,7 @@ export interface FireResponse {
 
 export interface GameStateResponse {
   gameId: string;
-  phase: 'PLACEMENT' | 'BATTLE' | 'FINISHED';
+  phase: 'PLACEMENT' | 'BATTLE' | 'FINISHED' | 'WAITING_FOR_PLAYER' | 'WAITING_FOR_PLACEMENT';
   difficulty: Difficulty;
   playerBoard: CellState[][];
   playerShips: ShipDTO[];

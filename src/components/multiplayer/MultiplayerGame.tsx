@@ -20,7 +20,6 @@ import type {
   ShotResult,
   ShipType,
   GameWsEvent,
-  PlacementRequest,
 } from '../../types/game';
 
 // ── Types ────────────────────────────────────────────────────────────────────
