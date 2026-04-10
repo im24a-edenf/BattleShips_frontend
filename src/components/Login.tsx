@@ -5,6 +5,7 @@ import api from '../api/axios';
 import { useAuth } from '../AuthContext';
 import { parseAuthResponse } from '../authResponse';
 import { getLoginReason } from '../authNavigation';
+import BackendStatus from './BackendStatus';
 
 /**
  * Login Component
@@ -17,6 +18,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   // Hooks for navigating and managing authentication.
   const navigate = useNavigate();
@@ -30,31 +32,31 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     try {
-      // Step 1: Send the email and password to the backend.
       const response = await api.post('/api/v1/auth/authenticate', { email, password });
       const { user, token } = parseAuthResponse(response.data);
-      
-      // Step 2: If the backend says OK, we tell the 'AuthContext' to log in the user.
       login(user, token);
-      
-      // Step 3: Redirect the user to the dashboard.
       navigate('/');
     } catch (err: unknown) {
-      // If something goes wrong (e.g., wrong password), we show an error message.
       if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || 'Login failed');
+        setError(err.response?.data?.message || 'Login failed. Check your credentials.');
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
         setError('An unexpected error occurred');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 text-center">
+        <div className="flex justify-center">
+          <BackendStatus />
+        </div>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Login</h2>
         
         {/* If there's an error, we display it here. */}
@@ -85,9 +87,11 @@ const Login: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-200"
+            disabled={isLoading}
+            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-md transition duration-200 flex items-center justify-center gap-2"
           >
-            Login
+            {isLoading && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
         

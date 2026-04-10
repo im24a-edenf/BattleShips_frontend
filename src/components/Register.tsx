@@ -4,6 +4,7 @@ import axios from 'axios';
 import api from '../api/axios';
 import { useAuth } from '../AuthContext';
 import { parseAuthResponse } from '../authResponse';
+import BackendStatus from './BackendStatus';
 
 /**
  * Register Component
@@ -16,6 +17,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -26,31 +28,31 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     try {
-      // Step 1: Send registration data to the backend.
       const response = await api.post('/api/v1/auth/register', { email, password, role: 'USER' });
       const { user, token } = parseAuthResponse(response.data);
-      
-      // Step 2: If registration is successful, the backend usually logs the user in immediately.
       login(user, token);
-      
-      // Step 3: Redirect to the dashboard.
       navigate('/');
     } catch (err: unknown) {
-      // Error handling for registration (e.g., if email is already taken).
       if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || 'Registration failed');
+        setError(err.response?.data?.message || 'Registration failed. Email may already be in use.');
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
         setError('An unexpected error occurred');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 text-center">
+        <div className="flex justify-center">
+          <BackendStatus />
+        </div>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Register</h2>
         
         {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
@@ -83,9 +85,11 @@ const Register: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md transition duration-200"
+            disabled={isLoading}
+            className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-md transition duration-200 flex items-center justify-center gap-2"
           >
-            Register
+            {isLoading && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+            {isLoading ? 'Registering...' : 'Register'}
           </button>
         </form>
         
