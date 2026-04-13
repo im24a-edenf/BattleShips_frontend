@@ -1,9 +1,8 @@
 import React from 'react';
-import type { CellState, ShipDTO } from '../../types/game';
+import type { CellState } from '../../types/game';
 
 interface GameBoardProps {
   board: CellState[][];
-  ships?: ShipDTO[];
   onCellClick?: (x: number, y: number) => void;
   isEnemy: boolean;
   disabled?: boolean;
@@ -21,37 +20,36 @@ const getCellClasses = (
   isLastShot: boolean,
 ): string => {
   const base =
-    'w-10 h-10 border border-slate-600 flex items-center justify-center relative transition-colors duration-150 select-none';
+    'game-cell border border-slate-700/60 flex items-center justify-center relative transition-all duration-150 select-none';
 
   const ring = isLastShot ? ' ring-2 ring-yellow-400 ring-inset z-10' : '';
 
-  if (state === 'HIT') return `${base}${ring} bg-red-600`;
+  if (state === 'HIT') return `${base}${ring} bg-red-600/90`;
   if (state === 'SUNK') return `${base}${ring} bg-red-900`;
-  if (state === 'MISS') return `${base}${ring} bg-slate-600`;
-  if (state === 'SHIP' && !isEnemy) return `${base}${ring} bg-blue-800`;
+  if (state === 'MISS') return `${base}${ring} bg-slate-700/80`;
+  if (state === 'SHIP' && !isEnemy) return `${base}${ring} bg-cyan-800/70 border-cyan-700/50`;
 
-  // EMPTY (or SHIP on enemy board which shouldn't occur but treat as empty)
   if (isClickable) {
-    return `${base}${ring} bg-slate-100 hover:bg-cyan-200 cursor-crosshair`;
+    return `${base}${ring} bg-slate-800/60 hover:bg-cyan-600/30 active:bg-cyan-500/40 cursor-crosshair`;
   }
-  return `${base}${ring} bg-slate-100`;
+  return `${base}${ring} bg-slate-800/60`;
 };
 
 const HitMarker: React.FC = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" className="pointer-events-none">
+  <svg className="w-[55%] h-[55%] pointer-events-none" viewBox="0 0 20 20">
     <line x1="4" y1="4" x2="16" y2="16" stroke="#fca5a5" strokeWidth="2.5" strokeLinecap="round" />
     <line x1="16" y1="4" x2="4" y2="16" stroke="#fca5a5" strokeWidth="2.5" strokeLinecap="round" />
   </svg>
 );
 
 const MissMarker: React.FC = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" className="pointer-events-none">
-    <circle cx="6" cy="6" r="3.5" stroke="#94a3b8" strokeWidth="1.5" fill="rgba(148,163,184,0.3)" />
+  <svg className="w-[35%] h-[35%] pointer-events-none" viewBox="0 0 12 12">
+    <circle cx="6" cy="6" r="3.5" stroke="#64748b" strokeWidth="1.5" fill="rgba(100,116,139,0.3)" />
   </svg>
 );
 
 const SunkMarker: React.FC = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" className="pointer-events-none">
+  <svg className="w-[55%] h-[55%] pointer-events-none" viewBox="0 0 20 20">
     <line x1="4" y1="4" x2="16" y2="16" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" />
     <line x1="16" y1="4" x2="4" y2="16" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" />
     <circle cx="10" cy="10" r="8" stroke="#f87171" strokeWidth="1" fill="none" opacity="0.4" />
@@ -74,17 +72,17 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   return (
-    <div className="inline-flex flex-col gap-1">
+    <div className="inline-flex flex-col gap-0.5">
       {label && (
-        <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1 pl-7">
+        <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1 pl-[clamp(20px,5vw,28px)]">
           {label}
         </div>
       )}
 
       {/* Column headers */}
-      <div className="flex gap-0 pl-7">
+      <div className="flex gap-0" style={{ paddingLeft: 'clamp(20px, 5vw, 28px)' }}>
         {COLS.map(col => (
-          <div key={col} className="w-10 text-center text-xs text-slate-500 font-mono">
+          <div key={col} className="game-label-col text-center text-[10px] sm:text-xs text-slate-600 font-mono">
             {col}
           </div>
         ))}
@@ -93,8 +91,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
       {/* Rows */}
       {Array.from({ length: 10 }, (_, y) => (
         <div key={y} className="flex gap-0 items-center">
-          {/* Row label */}
-          <div className="w-7 text-right text-xs text-slate-500 font-mono pr-1">{ROWS[y]}</div>
+          <div className="game-label-row text-right text-[10px] sm:text-xs text-slate-600 font-mono pr-0.5">
+            {ROWS[y]}
+          </div>
 
           {Array.from({ length: 10 }, (_, x) => {
             const state = board[x]?.[y] ?? 'EMPTY';

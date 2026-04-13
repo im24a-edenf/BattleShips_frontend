@@ -7,19 +7,12 @@ import { parseAuthResponse } from '../authResponse';
 import BackendStatus from './BackendStatus';
 
 const RULES = [
-  { label: 'At least 8 characters',                   test: (p: string) => p.length >= 8 },
-  { label: 'One uppercase letter (A–Z)',               test: (p: string) => /[A-Z]/.test(p) },
-  { label: 'One lowercase letter (a–z)',               test: (p: string) => /[a-z]/.test(p) },
-  { label: 'One digit (0–9)',                          test: (p: string) => /[0-9]/.test(p) },
-  { label: 'One special character (@#$%^&+=!*())',     test: (p: string) => /[@#$%^&+=!*()]/.test(p) },
+  { label: 'Min. 8 characters',                       test: (p: string) => p.length >= 8 },
+  { label: 'Uppercase (A-Z)',                          test: (p: string) => /[A-Z]/.test(p) },
+  { label: 'Lowercase (a-z)',                          test: (p: string) => /[a-z]/.test(p) },
+  { label: 'Digit (0-9)',                              test: (p: string) => /[0-9]/.test(p) },
+  { label: 'Special char (@#$%^&+=!*())',              test: (p: string) => /[@#$%^&+=!*()]/.test(p) },
 ];
-
-const passwordError = (password: string): string | null => {
-  const failed = RULES.filter(r => !r.test(password));
-  if (failed.length === 0) return null;
-  if (failed.length === RULES.length) return null; // don't nag on empty field
-  return 'Password too weak: ' + failed.map(r => r.label.toLowerCase()).join(', ') + '.';
-};
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -31,7 +24,6 @@ const Register: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const inlineError = touched && password.length > 0 ? passwordError(password) : null;
   const isPasswordValid = RULES.every(r => r.test(password));
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +41,7 @@ const Register: React.FC = () => {
       if (axios.isAxiosError(err)) {
         const msg = err.response?.data?.message ?? '';
         if (/weak|password/i.test(msg)) {
-          setError('Password too weak. Please choose a stronger password.');
+          setError('Password too weak.');
         } else if (msg) {
           setError(msg);
         } else {
@@ -66,56 +58,59 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 text-center">
+    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight">
+          <span className="text-cyan-400">Battle</span>
+          <span className="text-slate-300">Ships</span>
+        </h1>
+      </div>
+
+      <div className="w-full max-w-sm p-6 space-y-5 bg-slate-800/60 border border-slate-700/50 rounded-2xl">
         <div className="flex justify-center">
           <BackendStatus />
         </div>
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Register</h2>
 
-        {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
+        <h2 className="text-xl font-bold text-slate-200 text-center">Register</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-left">
+        {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white outline-none transition"
+              className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-700/50 rounded-xl text-white focus:outline-none focus:border-cyan-600/50 transition text-sm"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setTouched(true); }}
               required
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white outline-none transition ${
-                inlineError
-                  ? 'border-red-400 focus:ring-red-400'
+              className={`w-full px-4 py-2.5 bg-slate-900/60 border rounded-xl text-white focus:outline-none transition text-sm ${
+                touched && !isPasswordValid && password.length > 0
+                  ? 'border-red-500/50 focus:border-red-500/50'
                   : isPasswordValid && password.length > 0
-                    ? 'border-green-400 focus:ring-green-500'
-                    : 'border-gray-300 dark:border-gray-600 focus:ring-green-500'
+                    ? 'border-emerald-600/50 focus:border-emerald-500/50'
+                    : 'border-slate-700/50 focus:border-cyan-600/50'
               }`}
               placeholder="••••••••"
             />
 
-            {inlineError && (
-              <p className="mt-1.5 text-xs text-red-500">{inlineError}</p>
-            )}
-
-            {/* Requirements checklist */}
-            <ul className="mt-2 space-y-1">
+            <ul className="mt-2 grid grid-cols-2 gap-x-2 gap-y-0.5">
               {RULES.map(rule => {
                 const met = rule.test(password);
                 return (
-                  <li key={rule.label} className={`flex items-center gap-1.5 text-xs transition-colors ${
-                    met ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'
+                  <li key={rule.label} className={`flex items-center gap-1 text-[10px] transition-colors ${
+                    met ? 'text-emerald-500' : 'text-slate-600'
                   }`}>
                     <span className="font-bold">{met ? '✓' : '○'}</span>
                     {rule.label}
@@ -128,17 +123,17 @@ const Register: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-md transition duration-200 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-cyan-700 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
           >
             {isLoading && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
             {isLoading ? 'Registering...' : 'Register'}
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-center text-xs text-slate-500">
           Already have an account?{' '}
-          <Link to="/login" className="text-green-600 dark:text-green-400 hover:underline font-medium">
-            Login here
+          <Link to="/login" className="text-cyan-400 hover:underline">
+            Login
           </Link>
         </p>
       </div>

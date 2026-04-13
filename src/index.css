@@ -1,14 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
+  color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  background-color: #0f172a;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -21,9 +19,27 @@ body {
   min-height: 100vh;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
+/* Responsive game board cells — scale to viewport */
+.game-cell {
+  width: clamp(28px, 8.5vw, 40px);
+  height: clamp(28px, 8.5vw, 40px);
+}
+
+.game-label-col {
+  width: clamp(28px, 8.5vw, 40px);
+}
+
+.game-label-row {
+  width: clamp(20px, 5vw, 28px);
+}
+
+/* Placement board cells match */
+.placement-cell {
+  width: clamp(28px, 8.5vw, 40px);
+  height: clamp(28px, 8.5vw, 40px);
+}
+
+.dock-cell {
+  width: clamp(28px, 8.5vw, 40px);
+  height: clamp(28px, 8.5vw, 40px);
 }

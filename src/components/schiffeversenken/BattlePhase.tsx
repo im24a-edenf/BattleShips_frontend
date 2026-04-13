@@ -70,7 +70,6 @@ const BattlePhase: React.FC<BattlePhaseProps> = ({
     try {
       const fireResult = await fireShot(gameId, x, y);
 
-      // Immediately show player's shot on the bot board
       const newBotBoard = botBoard.map(row => [...row]);
       const cellResult: CellState = fireResult.playerShot.result === 'MISS' ? 'MISS' :
                                      fireResult.playerShot.result === 'SUNK' ? 'SUNK' : 'HIT';
@@ -78,7 +77,6 @@ const BattlePhase: React.FC<BattlePhaseProps> = ({
       const sy = fireResult.playerShot.y;
       newBotBoard[sx][sy] = cellResult;
       if (cellResult === 'SUNK') {
-        // Mark all contiguous HIT cells of the sunk ship as SUNK
         for (let cx = sx - 1; cx >= 0 && newBotBoard[cx][sy] === 'HIT'; cx--) newBotBoard[cx][sy] = 'SUNK';
         for (let cx = sx + 1; cx < 10 && newBotBoard[cx][sy] === 'HIT'; cx++) newBotBoard[cx][sy] = 'SUNK';
         for (let cy = sy - 1; cy >= 0 && newBotBoard[sx][cy] === 'HIT'; cy--) newBotBoard[sx][cy] = 'SUNK';
@@ -87,7 +85,6 @@ const BattlePhase: React.FC<BattlePhaseProps> = ({
       setOptimisticBotBoard(newBotBoard);
       setLastPlayerShot({ x, y });
 
-      // Bot fires back after a delay
       if (fireResult.botShot) {
         setLoadingMsg('Bot schießt zurück...');
         await new Promise<void>(resolve => setTimeout(resolve, 900));
@@ -101,7 +98,6 @@ const BattlePhase: React.FC<BattlePhaseProps> = ({
       if (fireResult.botShot) {
         const botEntry = buildLogEntry(fireResult.botShot, true);
         setLastBotShot({ x: fireResult.botShot.x, y: fireResult.botShot.y });
-        // bot entry goes first (it's chronologically later → shown at top of log)
         newEntries.push(botEntry);
       }
       newEntries.push(playerEntry);
@@ -124,10 +120,11 @@ const BattlePhase: React.FC<BattlePhaseProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col xl:flex-row gap-8 items-start justify-center">
+    <div className="flex flex-col gap-4">
+      {/* Boards — stack on mobile, side by side on desktop */}
+      <div className="flex flex-col xl:flex-row gap-4 xl:gap-6 items-center xl:items-start justify-center">
         {/* Player board */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-1">
           <GameBoard
             board={playerBoard}
             isEnemy={false}
@@ -136,20 +133,20 @@ const BattlePhase: React.FC<BattlePhaseProps> = ({
           />
         </div>
 
-        {/* Loading indicator between boards — fixed width so text changes don't shift the boards */}
-        <div className="flex items-center justify-center xl:mt-20 xl:w-40 flex-shrink-0">
+        {/* Loading indicator */}
+        <div className="flex items-center justify-center xl:mt-20 py-1 xl:py-0 xl:w-32 flex-shrink-0">
           {isLoading ? (
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs text-slate-400">{loadingMsg}</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+              <span className="text-[10px] sm:text-xs text-slate-500">{loadingMsg}</span>
             </div>
           ) : (
-            <div className="text-slate-600 text-2xl select-none hidden xl:block">⚔</div>
+            <div className="text-slate-700 text-xl select-none hidden xl:block">⚔</div>
           )}
         </div>
 
         {/* Bot board */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-1">
           <GameBoard
             board={optimisticBotBoard ?? botBoard}
             isEnemy
@@ -162,7 +159,7 @@ const BattlePhase: React.FC<BattlePhaseProps> = ({
       </div>
 
       {/* Fleet status + event log */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-4xl mx-auto w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 max-w-4xl mx-auto w-full">
         <FleetStatus playerShips={playerShips} botShips={botShips} />
         <EventLog entries={eventLog} />
       </div>

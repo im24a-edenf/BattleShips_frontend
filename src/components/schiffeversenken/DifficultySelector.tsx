@@ -17,44 +17,44 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = ({ onGameCreated, 
       const { gameId } = await createGame(difficulty);
       onGameCreated(gameId, difficulty);
     } catch {
-      onError('Spiel konnte nicht erstellt werden. Bitte versuche es erneut.');
+      onError('Spiel konnte nicht erstellt werden.');
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-10">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-slate-200">Schwierigkeitsgrad wählen</h2>
-        <p className="text-slate-400">Der Bot schießt auf {'"'}HARD{'"'} deutlich intelligenter.</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-200">Schwierigkeit wählen</h2>
+        <p className="text-xs sm:text-sm text-slate-500">Wie clever soll der Bot sein?</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-6">
+      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none sm:w-auto">
         <button
           onClick={() => handleSelect('EASY')}
           disabled={loading}
-          className="group flex flex-col items-center gap-3 px-10 py-8 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 border border-slate-600 hover:border-cyan-500 rounded-2xl transition-all duration-150 shadow-lg"
+          className="flex flex-col items-center gap-2 px-8 py-6 sm:px-10 sm:py-8 bg-slate-800/60 hover:bg-slate-800 disabled:opacity-50 border border-slate-700/50 hover:border-cyan-600/50 rounded-2xl transition-all duration-200"
         >
-          <span className="text-4xl">🎯</span>
-          <span className="text-xl font-bold text-slate-200">EASY</span>
-          <span className="text-sm text-slate-400">Zufälliger Bot</span>
+          <span className="text-3xl sm:text-4xl">🎯</span>
+          <span className="text-lg font-bold text-slate-200">Easy</span>
+          <span className="text-xs text-slate-500">Zufälliger Bot</span>
         </button>
 
         <button
           onClick={() => handleSelect('HARD')}
           disabled={loading}
-          className="group flex flex-col items-center gap-3 px-10 py-8 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 border border-slate-600 hover:border-red-500 rounded-2xl transition-all duration-150 shadow-lg"
+          className="flex flex-col items-center gap-2 px-8 py-6 sm:px-10 sm:py-8 bg-slate-800/60 hover:bg-slate-800 disabled:opacity-50 border border-slate-700/50 hover:border-red-500/50 rounded-2xl transition-all duration-200"
         >
-          <span className="text-4xl">💀</span>
-          <span className="text-xl font-bold text-red-400">HARD</span>
-          <span className="text-sm text-slate-400">Intelligenter Bot</span>
+          <span className="text-3xl sm:text-4xl">💀</span>
+          <span className="text-lg font-bold text-red-400">Hard</span>
+          <span className="text-xs text-slate-500">Intelligenter Bot</span>
         </button>
       </div>
 
       {loading && (
-        <div className="flex items-center gap-2 text-slate-400">
-          <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm">Spiel wird erstellt...</span>
+        <div className="flex items-center gap-2 text-slate-500">
+          <div className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs">Erstelle Spiel...</span>
         </div>
       )}
     </div>

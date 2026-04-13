@@ -4,13 +4,12 @@ import type { PlacedShip } from '../../types/game';
 import type { DragData } from './ShipDock';
 import { isValidPlacement, getShipCells } from './placementUtils';
 
-const CELL_SIZE = 40;
 const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 const COLS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
 interface PlacementBoardProps {
   placedShips: PlacedShip[];
-  isHorizontal: boolean; // Base orientation from the parent
+  isHorizontal: boolean;
   dragDataRef: MutableRefObject<DragData | null>;
   onPlaceShip: (id: string, shipType: string, x: number, y: number, horizontal: boolean, size: number) => void;
   onRemoveShip: (id: string) => void;
@@ -29,16 +28,14 @@ const PlacementBoard: React.FC<PlacementBoardProps> = ({
   onRemoveShip,
 }) => {
   const [hover, setHover] = useState<HoverState>({ cells: [], valid: false });
-  
-  // Refs for dedup
+
   const lastHoverKey = useRef('');
   const lastHoverCell = useRef<{ x: number; y: number } | null>(null);
   const lastHoverOrientation = useRef(isHorizontal);
-  
+
   const isHorizontalRef = useRef(isHorizontal);
   isHorizontalRef.current = isHorizontal;
 
-  // Now accepts the dynamic orientation so we can override it mid-drag
   const computeHover = (dropX: number, dropY: number, currentOrientation: boolean): HoverState => {
     const drag = dragDataRef.current;
     if (!drag) return { cells: [], valid: false };
@@ -53,7 +50,6 @@ const PlacementBoard: React.FC<PlacementBoardProps> = ({
     return { cells, valid };
   };
 
-  // Handles dock-based rotation before dragging
   useEffect(() => {
     if (dragDataRef.current && lastHoverCell.current) {
       lastHoverKey.current = '';
@@ -75,12 +71,11 @@ const PlacementBoard: React.FC<PlacementBoardProps> = ({
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
 
-    // Holding Shift temporarily inverts the base orientation mid-drag
     const currentOrientation = e.shiftKey ? !isHorizontalRef.current : isHorizontalRef.current;
 
     const key = `${x},${y}`;
     const orientationChanged = currentOrientation !== lastHoverOrientation.current;
-    
+
     if (key === lastHoverKey.current && !orientationChanged) return;
 
     lastHoverKey.current = key;
@@ -104,7 +99,6 @@ const PlacementBoard: React.FC<PlacementBoardProps> = ({
     const drag = dragDataRef.current;
     if (!drag) return;
 
-    // Use the exact same Shift logic to determine final drop orientation
     const currentOrientation = e.shiftKey ? !isHorizontalRef.current : isHorizontalRef.current;
 
     const startX = currentOrientation ? x - drag.offset : x;
@@ -129,20 +123,20 @@ const PlacementBoard: React.FC<PlacementBoardProps> = ({
   const hoverSet = new Set(hover.cells.map(c => `${c.x},${c.y}`));
 
   const getCellStyle = (x: number, y: number): string => {
-    const base = 'border border-slate-600 flex items-center justify-center transition-colors duration-150';
+    const base = 'placement-cell border border-slate-700/60 flex items-center justify-center transition-colors duration-150';
     const key = `${x},${y}`;
 
     if (hoverSet.has(key)) {
       return hover.valid
-        ? `${base} bg-green-600/50 border-green-500`
-        : `${base} bg-red-600/50 border-red-500`;
+        ? `${base} bg-emerald-600/40 border-emerald-500/60`
+        : `${base} bg-red-600/40 border-red-500/60`;
     }
 
     if (occupiedMap.has(key)) {
-      return `${base} bg-blue-800 border-blue-600 cursor-pointer hover:bg-red-900/70`;
+      return `${base} bg-cyan-800/70 border-cyan-700/50 cursor-pointer hover:bg-red-900/60`;
     }
 
-    return `${base} bg-slate-200/10 hover:bg-slate-200/20`;
+    return `${base} bg-slate-800/60 hover:bg-slate-700/40`;
   };
 
   return (
@@ -153,13 +147,9 @@ const PlacementBoard: React.FC<PlacementBoardProps> = ({
       onDragOver={e => e.preventDefault()}
     >
       {/* Column headers */}
-      <div className="flex gap-0 pl-7">
+      <div className="flex gap-0" style={{ paddingLeft: 'clamp(20px, 5vw, 28px)' }}>
         {COLS.map(col => (
-          <div
-            key={col}
-            className="text-center text-xs text-slate-500 font-mono"
-            style={{ width: CELL_SIZE }}
-          >
+          <div key={col} className="game-label-col text-center text-[10px] sm:text-xs text-slate-600 font-mono">
             {col}
           </div>
         ))}
@@ -167,7 +157,7 @@ const PlacementBoard: React.FC<PlacementBoardProps> = ({
 
       {Array.from({ length: 10 }, (_, y) => (
         <div key={y} className="flex gap-0 items-center">
-          <div className="text-right text-xs text-slate-500 font-mono pr-1" style={{ width: 28 }}>
+          <div className="game-label-row text-right text-[10px] sm:text-xs text-slate-600 font-mono pr-0.5">
             {ROWS[y]}
           </div>
           {Array.from({ length: 10 }, (_, x) => {
@@ -176,7 +166,6 @@ const PlacementBoard: React.FC<PlacementBoardProps> = ({
               <div
                 key={x}
                 className={getCellStyle(x, y)}
-                style={{ width: CELL_SIZE, height: CELL_SIZE }}
                 onDragOver={e => handleCellDragOver(e, x, y)}
                 onDrop={e => handleCellDrop(e, x, y)}
                 onClick={() => occupant && onRemoveShip(occupant.id)}

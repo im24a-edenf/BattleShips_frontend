@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { CellState, ShipDTO, LogEntry, GamePhase, Difficulty, Winner, FireCallbackPayload } from '../../types/game';
 import { getGameState } from '../../api/gameApi';
 import DifficultySelector from './DifficultySelector';
@@ -39,6 +40,7 @@ const initialState: GameState = {
 
 const SchiffeversenkenGame: React.FC = () => {
   const [state, setState] = useState<GameState>(initialState);
+  const navigate = useNavigate();
 
   const handleGameCreated = useCallback((gameId: string, difficulty: Difficulty) => {
     setState(prev => ({ ...prev, gameId, difficulty, phase: 'PLACEMENT', error: null }));
@@ -97,49 +99,59 @@ const SchiffeversenkenGame: React.FC = () => {
     state;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-4 sm:p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-cyan-400 tracking-widest uppercase">
-            Schiffe Versenken
+    <div className="min-h-screen bg-slate-900 text-white flex flex-col">
+      {/* Nav */}
+      <nav className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm flex-shrink-0">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/')}
+            className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            ← Menu
+          </button>
+          <h1 className="text-sm sm:text-base font-bold text-cyan-400 tracking-widest uppercase">
+            Solo vs Bot
           </h1>
-          {gameId && phase !== 'IDLE' && (
-            <p className="text-xs text-slate-600 mt-1 font-mono">{gameId}</p>
+          <div className="w-16" />
+        </div>
+      </nav>
+
+      {/* Content */}
+      <div className="flex-1 px-3 sm:px-6 py-4">
+        <div className="max-w-7xl mx-auto">
+          {error && (
+            <div className="mb-4 p-3 bg-red-900/30 border border-red-800/50 rounded-lg text-red-400 text-xs sm:text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          {phase === 'IDLE' && (
+            <DifficultySelector onGameCreated={handleGameCreated} onError={handleError} />
+          )}
+
+          {phase === 'PLACEMENT' && gameId && (
+            <PlacementPhase gameId={gameId} onShipsPlaced={handleShipsPlaced} onError={handleError} />
+          )}
+
+          {phase === 'BATTLE' && gameId && (
+            <BattlePhase
+              gameId={gameId}
+              playerBoard={playerBoard}
+              botBoard={botBoard}
+              playerShips={playerShips}
+              botShips={botShips}
+              eventLog={eventLog}
+              isLoading={isLoading}
+              onFire={handleFire}
+              onLoadingChange={handleLoadingChange}
+              onError={handleError}
+            />
+          )}
+
+          {phase === 'FINISHED' && winner && (
+            <GameOver winner={winner} onRestart={handleRestart} />
           )}
         </div>
-
-        {error && (
-          <div className="mb-6 p-3 bg-red-900/50 border border-red-700 rounded-lg text-red-300 text-sm text-center">
-            {error}
-          </div>
-        )}
-
-        {phase === 'IDLE' && (
-          <DifficultySelector onGameCreated={handleGameCreated} onError={handleError} />
-        )}
-
-        {phase === 'PLACEMENT' && gameId && (
-          <PlacementPhase gameId={gameId} onShipsPlaced={handleShipsPlaced} onError={handleError} />
-        )}
-
-        {phase === 'BATTLE' && gameId && (
-          <BattlePhase
-            gameId={gameId}
-            playerBoard={playerBoard}
-            botBoard={botBoard}
-            playerShips={playerShips}
-            botShips={botShips}
-            eventLog={eventLog}
-            isLoading={isLoading}
-            onFire={handleFire}
-            onLoadingChange={handleLoadingChange}
-            onError={handleError}
-          />
-        )}
-
-        {phase === 'FINISHED' && winner && (
-          <GameOver winner={winner} onRestart={handleRestart} />
-        )}
       </div>
     </div>
   );

@@ -12,12 +12,12 @@ const HitDots: React.FC<{ size: number; hits: number; sunk: boolean }> = ({ size
     {Array.from({ length: size }, (_, i) => (
       <div
         key={i}
-        className={`w-3 h-3 rounded-sm border transition-colors duration-150 ${
+        className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm border transition-colors duration-150 ${
           sunk
-            ? 'bg-red-900 border-red-700'
+            ? 'bg-red-900/80 border-red-800/50'
             : i < hits
             ? 'bg-red-500 border-red-400'
-            : 'bg-blue-800 border-blue-600'
+            : 'bg-cyan-800/50 border-cyan-700/40'
         }`}
       />
     ))}
@@ -31,9 +31,9 @@ const ShipRow: React.FC<{ name: string; size: number; hits: number; sunk: boolea
   sunk,
   unknown,
 }) => (
-  <div className={`py-1 ${sunk ? 'opacity-50' : ''}`}>
+  <div className={`py-0.5 ${sunk ? 'opacity-40' : ''}`}>
     <div className="flex items-center gap-2">
-      <span className={`text-xs ${sunk ? 'line-through text-slate-500' : 'text-slate-300'}`}>
+      <span className={`text-[10px] sm:text-xs ${sunk ? 'line-through text-slate-600' : 'text-slate-400'}`}>
         {unknown ? '???' : name}
       </span>
     </div>
@@ -41,7 +41,7 @@ const ShipRow: React.FC<{ name: string; size: number; hits: number; sunk: boolea
     {unknown && (
       <div className="flex gap-0.5 mt-0.5">
         {Array.from({ length: size }, (_, i) => (
-          <div key={i} className="w-3 h-3 rounded-sm border border-slate-600 bg-slate-700" />
+          <div key={i} className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm border border-slate-700/50 bg-slate-800/50" />
         ))}
       </div>
     )}
@@ -75,10 +75,10 @@ const FleetStatus: React.FC<FleetStatusProps> = ({ playerShips, botShips }) => {
     FULL_FLEET.find(s => s.shipType === type)?.displayName ?? type;
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-3">
-        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Deine Flotte</h3>
-        <div className="space-y-1">
+    <div className="grid grid-cols-2 gap-3">
+      <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3">
+        <h3 className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Deine Flotte</h3>
+        <div className="space-y-0.5">
           {playerShips.map((ship, i) => (
             <ShipRow
               key={i}
@@ -91,9 +91,9 @@ const FleetStatus: React.FC<FleetStatusProps> = ({ playerShips, botShips }) => {
         </div>
       </div>
 
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-3">
-        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Gegner</h3>
-        <div className="space-y-1">
+      <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3">
+        <h3 className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Gegner</h3>
+        <div className="space-y-0.5">
           {botFleetRows.map((row, i) => (
             <ShipRow
               key={i}

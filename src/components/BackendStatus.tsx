@@ -6,7 +6,6 @@ type Status = 'idle' | 'checking' | 'online' | 'starting' | 'offline';
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
 const PING_URL = `${BASE_URL}/api/v1/auth/register`;
 
-// Ping via OPTIONS (CORS preflight) — always unauthenticated, always responds
 const ping = (): Promise<number> => {
   const start = Date.now();
   return axios
@@ -14,7 +13,7 @@ const ping = (): Promise<number> => {
     .then(() => Date.now() - start)
     .catch((err) => {
       if (axios.isAxiosError(err) && err.response) {
-        return Date.now() - start; // got any response — server is alive
+        return Date.now() - start;
       }
       throw err;
     });
@@ -40,12 +39,12 @@ const BackendStatus: React.FC = () => {
       <div className="flex flex-col items-center gap-2 w-full">
         <button
           onClick={check}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition duration-200"
+          className="px-4 py-2 bg-cyan-700 hover:bg-cyan-600 text-white text-xs font-medium rounded-lg transition-colors"
         >
           Connect to Server
         </button>
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center max-w-xs">
-          The server goes to sleep after inactivity. Click to wake it up — this can take up to 60 seconds on the first request.
+        <p className="text-[10px] text-slate-600 text-center max-w-[250px]">
+          Server sleeps after inactivity. Click to wake it up (up to 60s).
         </p>
       </div>
     );
@@ -59,29 +58,29 @@ const BackendStatus: React.FC = () => {
   };
 
   const label: Record<Exclude<Status, 'idle'>, string> = {
-    checking: 'Waking up server, please wait...',
+    checking: 'Waking up server...',
     online:   `Server online${ms ? ` (${ms}ms)` : ''}`,
-    starting: 'Server is waking up, almost there...',
+    starting: 'Almost there...',
     offline:  'Server unreachable',
   };
 
   const textColor: Record<Exclude<Status, 'idle'>, string> = {
-    checking: 'text-yellow-600 dark:text-yellow-400',
-    online:   'text-emerald-600 dark:text-emerald-400',
-    starting: 'text-orange-600 dark:text-orange-400',
-    offline:  'text-red-600 dark:text-red-400',
+    checking: 'text-yellow-500',
+    online:   'text-emerald-500',
+    starting: 'text-orange-500',
+    offline:  'text-red-500',
   };
 
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className={`flex items-center gap-1.5 text-xs font-medium ${textColor[status]}`}>
-        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dot[status]}`} />
+      <div className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-medium ${textColor[status]}`}>
+        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot[status]}`} />
         {label[status]}
       </div>
       {status === 'offline' && (
         <button
           onClick={check}
-          className="text-xs text-blue-500 hover:text-blue-400 underline"
+          className="text-[10px] text-cyan-500 hover:text-cyan-400 underline"
         >
           Retry
         </button>

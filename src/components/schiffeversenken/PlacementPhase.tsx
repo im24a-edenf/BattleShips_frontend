@@ -24,7 +24,6 @@ const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, 
 
   const dragDataRef = useRef<DragData | null>(null);
 
-  // R key to rotate
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'r' || e.key === 'R') {
@@ -68,10 +67,8 @@ const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, 
 
   const handleAutoPlace = useCallback(() => {
     let result = autoPlaceFleet(dockShips, placedShips);
-    // Retry once if it fails (very rare)
     if (!result) result = autoPlaceFleet(dockShips, placedShips);
     if (!result) {
-      // Clear all and try fresh
       const allShips = FULL_FLEET;
       result = autoPlaceFleet(allShips, []);
       if (result) {
@@ -120,37 +117,39 @@ const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, 
   const allPlaced = dockShips.length === 0;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-4">
+      {/* Controls — compact on mobile */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
-          <h2 className="text-xl font-bold text-slate-200">Schiffe platzieren</h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Ziehe deine Schiffe auf das Feld. Drücke <kbd className="bg-slate-700 px-1 rounded text-xs">Shift</kbd> zum Drehen.
+          <h2 className="text-lg sm:text-xl font-bold text-slate-200">Schiffe platzieren</h2>
+          <p className="text-xs text-slate-500 mt-0.5 hidden sm:block">
+            Ziehe Schiffe aufs Feld. <kbd className="bg-slate-700 px-1 rounded text-[10px]">R</kbd> oder <kbd className="bg-slate-700 px-1 rounded text-[10px]">Shift</kbd> zum Drehen.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setIsHorizontal(prev => !prev)}
-            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-sm text-slate-300 transition-colors"
+            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg text-xs text-slate-400 transition-colors"
           >
-            Drehen ({isHorizontal ? 'Horizontal' : 'Vertikal'})
+            {isHorizontal ? '↔ Horizontal' : '↕ Vertikal'}
           </button>
           <button
             onClick={handleAutoPlace}
-            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-sm text-slate-300 transition-colors"
+            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg text-xs text-slate-400 transition-colors"
           >
-            Auto-Platzieren
+            Auto
           </button>
           <button
             onClick={handleClearAll}
-            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-sm text-slate-300 transition-colors"
+            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg text-xs text-slate-400 transition-colors"
           >
-            Zurücksetzen
+            Reset
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
+      {/* Ship dock on top on mobile, left on desktop */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start">
         <ShipDock
           ships={dockShips}
           isHorizontal={isHorizontal}
@@ -158,7 +157,7 @@ const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, 
           onDragEnd={handleDragEnd}
         />
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <PlacementBoard
             placedShips={placedShips}
             isHorizontal={isHorizontal}
@@ -168,9 +167,9 @@ const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, 
           />
 
           {placementErrors.length > 0 && (
-            <div className="p-3 bg-red-900/40 border border-red-700 rounded-lg">
+            <div className="p-3 bg-red-900/30 border border-red-800/50 rounded-lg">
               {placementErrors.map((err, i) => (
-                <p key={i} className="text-red-400 text-sm">{err}</p>
+                <p key={i} className="text-red-400 text-xs">{err}</p>
               ))}
             </div>
           )}
@@ -178,7 +177,7 @@ const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, 
           <button
             onClick={handleSubmit}
             disabled={!allPlaced || isSubmitting}
-            className="w-full py-3 bg-cyan-700 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors duration-150 text-lg shadow-lg"
+            className="w-full py-3 bg-cyan-700 hover:bg-cyan-600 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors text-sm sm:text-base"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">
@@ -188,7 +187,7 @@ const PlacementPhase: React.FC<PlacementPhaseProps> = ({ gameId, onShipsPlaced, 
             ) : allPlaced ? (
               'Bereit!'
             ) : (
-              `Noch ${dockShips.length} Schiff${dockShips.length !== 1 ? 'e' : ''} zu platzieren`
+              `Noch ${dockShips.length} Schiff${dockShips.length !== 1 ? 'e' : ''}`
             )}
           </button>
         </div>
