@@ -58,8 +58,9 @@ const BackendStatus: React.FC = () => {
         >
           Connect to Server
         </button>
-        <p className="text-[10px] text-slate-600 text-center max-w-[250px]">
-          Server sleeps after inactivity. Click to wake it up (up to 60s).
+        <p className="text-[10px] text-slate-600 text-center max-w-[280px] leading-relaxed">
+          We use a free hosting plan, so the server goes to sleep after 15 minutes of inactivity.
+          Waking it up takes about <span className="text-slate-400">~80 seconds</span>. You only need to do this once per session.
         </p>
       </div>
     );
