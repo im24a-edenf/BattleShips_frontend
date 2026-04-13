@@ -280,15 +280,24 @@ const MultiplayerGame: React.FC = () => {
     if (!state.isMyTurn || state.isLoading || !state.gameId) return;
     setState(prev => ({ ...prev, isLoading: true }));
 
-    // Optimistic update — show my shot immediately
-    const newBotBoard = state.botBoard.map(row => [...row]);
-    newBotBoard[x][y] = 'HIT'; // rough optimistic; WS event will correct to MISS/SUNK
-    setOptimisticBotBoard(newBotBoard);
     setLastPlayerShot({ x, y });
 
     try {
-      await fireShotMulti(state.gameId, x, y);
-      // Board state update happens via SHOT_FIRED WS event
+      const result = await fireShotMulti(state.gameId, x, y);
+
+      // Apply the real result immediately using the API response
+      const newBotBoard = state.botBoard.map(row => [...row]);
+      const cellResult: CellState = result.playerShot.result === 'MISS' ? 'MISS'
+        : result.playerShot.result === 'SUNK' ? 'SUNK' : 'HIT';
+      newBotBoard[result.playerShot.x][result.playerShot.y] = cellResult;
+      if (cellResult === 'SUNK') {
+        for (let cx = x - 1; cx >= 0 && newBotBoard[cx][y] === 'HIT'; cx--) newBotBoard[cx][y] = 'SUNK';
+        for (let cx = x + 1; cx < 10 && newBotBoard[cx][y] === 'HIT'; cx++) newBotBoard[cx][y] = 'SUNK';
+        for (let cy = y - 1; cy >= 0 && newBotBoard[x][cy] === 'HIT'; cy--) newBotBoard[x][cy] = 'SUNK';
+        for (let cy = y + 1; cy < 10 && newBotBoard[x][cy] === 'HIT'; cy++) newBotBoard[x][cy] = 'SUNK';
+      }
+      setOptimisticBotBoard(newBotBoard);
+      // Final board state update comes via SHOT_FIRED WS event
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
