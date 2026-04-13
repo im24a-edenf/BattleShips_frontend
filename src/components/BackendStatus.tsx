@@ -6,17 +6,32 @@ type Status = 'idle' | 'checking' | 'online' | 'starting' | 'offline';
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
 const PING_URL = `${BASE_URL}/api/v1/auth/register`;
 
-const ping = (): Promise<number> => {
+const MAX_RETRIES = 3;
+
+const singlePing = (): Promise<number> => {
   const start = Date.now();
   return axios
-    .options(PING_URL, { timeout: 40_000, withCredentials: false })
+    .options(PING_URL, { timeout: 45_000, withCredentials: false })
     .then(() => Date.now() - start)
     .catch((err) => {
       if (axios.isAxiosError(err) && err.response) {
-        return Date.now() - start;
+        return Date.now() - start; // any HTTP response = server is alive
       }
       throw err;
     });
+};
+
+const pingWithRetries = async (): Promise<number> => {
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      return await singlePing();
+    } catch {
+      if (attempt === MAX_RETRIES - 1) throw new Error('unreachable');
+      // wait briefly before retrying
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+  throw new Error('unreachable');
 };
 
 const BackendStatus: React.FC = () => {
@@ -26,7 +41,7 @@ const BackendStatus: React.FC = () => {
   const check = useCallback(async () => {
     setStatus('checking');
     try {
-      const elapsed = await ping();
+      const elapsed = await pingWithRetries();
       setMs(elapsed);
       setStatus(elapsed > 8_000 ? 'starting' : 'online');
     } catch {
