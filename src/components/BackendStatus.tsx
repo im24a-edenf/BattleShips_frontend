@@ -4,18 +4,17 @@ import axios from 'axios';
 type Status = 'checking' | 'online' | 'starting' | 'offline';
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
-const HEALTH_URL = `${BASE_URL}/actuator/health`;
+const PING_URL = `${BASE_URL}/api/v1/auth/register`;
 
-// Ping the health endpoint; resolve with how long it took
+// Ping via OPTIONS (CORS preflight) — always unauthenticated, always responds
 const ping = (): Promise<number> => {
   const start = Date.now();
   return axios
-    .get(HEALTH_URL, { timeout: 40_000, withCredentials: false })
+    .options(PING_URL, { timeout: 40_000, withCredentials: false })
     .then(() => Date.now() - start)
     .catch((err) => {
-      // Render returns 200 even when warming up, but a network error means offline
       if (axios.isAxiosError(err) && err.response) {
-        return Date.now() - start; // got a response — it's alive
+        return Date.now() - start; // got any response — server is alive
       }
       throw err;
     });
